@@ -23,6 +23,8 @@ def create_bot(bot_prefix, self_bot):
     @roll.error
     async def roll_error(ctx, error):
         if isinstance(error, commands.BadArgument):
-            await ctx.send("Invalid arguments provided")
+            await ctx.send("Invalid arguments provided" + ctx.message.author.mention)
+        elif isinstance(error, commands.CommandInvokeError):
+            await ctx.send("Invalid range provided" + ctx.message.author.mention)
 
     return client
