@@ -27,4 +27,13 @@ def create_bot(bot_prefix, self_bot):
         elif isinstance(error, commands.CommandInvokeError):
             await ctx.send("Invalid range provided" + ctx.message.author.mention)
 
+    @client.command(name='flip',
+                    description="This command does not accept any parameter",
+                    brief="Returns Heads or Tails.",
+                    aliases=['flip_coin'])
+    async def flip(ctx):
+        coin = ['Heads', 'Tails']
+        result = random.choice(coin)
+        await ctx.send(result + ctx.message.author.mention)
+
     return client
