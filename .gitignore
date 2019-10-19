@@ -1,0 +1,8 @@
+# Environment files
+.env
+
+# Cache files
+*pycache*
+
+# Pycharm cache
+.idea
