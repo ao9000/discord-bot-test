@@ -1,7 +1,9 @@
+from bot.api import discord_api_get_user_profile
+
 import discord
 from discord.ext import commands
-
 import random
+import os
 
 
 def create_bot(bot_prefix, self_bot):
@@ -49,6 +51,16 @@ def create_bot(bot_prefix, self_bot):
             await ctx.send(str(result) + ctx.message.author.mention)
 
     # Game related commands
-    
+    @client.command(name='dota2_server_medal',
+                    description="Displays the Dota 2 medal of members in the server sorted in descending order",
+                    brief="Displays the Dota 2 medal of members in the server",
+                    aliases=['dota2_member_medal'])
+    async def dota2_server_medal(ctx):
+        members = ctx.guild.members
+        for member in members:
+            if not member.bot:
+                discord_profile = discord_api_get_user_profile(os.getenv("discord_api_version", 6), member.id)
+
+                await ctx.send(discord_profile)
 
     return client
