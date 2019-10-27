@@ -1,6 +1,20 @@
 import urllib.parse
 import functools
 import math
+import discord
+
+
+# Discord
+def discord_create_embed_table(title, column_header, column_value, description=None, footer=None):
+    embed = discord.Embed(title=title, description=description, color=0x00ff00)
+
+    if footer:
+        embed.set_footer(text=footer)
+
+    for header, value in zip(column_header, column_value):
+        embed.add_field(name=header, value=value, inline=True)
+
+    return embed
 
 
 # Steam

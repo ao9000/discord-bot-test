@@ -1,5 +1,6 @@
 from bot.api import discord_api_get_user_profile, opendota_api_get_player_profile
-from bot.helper_functions import steam_id_64_to_steam_id_32, opendota_rank_tier_to_medal_name
+from bot.helper_functions import steam_id_64_to_steam_id_32, opendota_rank_tier_to_medal_name, \
+    discord_create_embed_table
 
 import discord
 from discord.ext import commands
@@ -61,6 +62,7 @@ def create_bot(bot_prefix, self_bot):
     async def dota2_server_medal(ctx):
         response_dict = {}
 
+        # members = client.get_all_members()
         members = ctx.guild.members
         for member in members:
             if not member.bot:
@@ -79,16 +81,19 @@ def create_bot(bot_prefix, self_bot):
         if not response_dict:
             await ctx.send("No members found" + ctx.message.author.mention)
         else:
-            member_name_combined = ""
-            medal_combined = ""
+            member_names = ""
+            medals = ""
             for key, value in sorted(response_dict.items(), key=lambda x: (x[1][0], -x[1][1]), reverse=True):
-                member_name_combined += key + '\n'
-                medal_combined += opendota_rank_tier_to_medal_name(value[0], value[1]) + '\n'
+                member_names += key + '\n'
+                medals += opendota_rank_tier_to_medal_name(value[0], value[1]) + '\n'
 
-                embed = discord.Embed(title="Medal Ranking", description="Dota 2 medal distribution in the server", color=0x00ff00)
-                embed.set_footer(text='Updated on {}'.format(datetime.datetime.now()))
-                embed.add_field(name="Discord Name", value=member_name_combined, inline=True)
-                embed.add_field(name="Dota 2 Medal", value=medal_combined, inline=True)
+            column_value = [member_names, medals]
+            column_header = ["Discord name", "Medal"]
+
+            embed = discord_create_embed_table(title="Medal Ranking", column_header=column_header,
+                                               column_value=column_value,
+                                               description="Dota 2 medal distribution in the server",
+                                               footer="Updated on {}".format(datetime.datetime.now()))
 
             await ctx.send(ctx.message.author.mention, embed=embed)
 
