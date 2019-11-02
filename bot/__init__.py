@@ -1,4 +1,4 @@
-from bot.api import discord_api_get_user_profile, opendota_api_get_player_profile
+from bot.api import discord_api_get_user_profile, opendota_api_get_player_profile, steam_api_get_current_player_count
 from bot.helper_functions import steam_id_64_to_steam_id_32, opendota_rank_tier_to_medal_name, \
     discord_create_embed_table
 
@@ -56,8 +56,8 @@ def create_bot(bot_prefix, self_bot):
 
     # Game related commands
     @client.command(name='dota2_server_medal',
-                    description="Displays the Dota 2 medal of members in the server sorted in descending order",
-                    brief="Displays the Dota 2 medal of members in the server",
+                    description="Using Discord-OpenDota integration to retrieve the rank of members in the server",
+                    brief="Displays the server medal ranking chart",
                     aliases=['dota2_member_medal'])
     async def dota2_server_medal(ctx):
         response_dict = {}
@@ -96,5 +96,12 @@ def create_bot(bot_prefix, self_bot):
                                                footer="Updated on {}".format(datetime.datetime.now()))
 
             await ctx.send(ctx.message.author.mention, embed=embed)
+
+    @client.command(name='dota2_current_player_count',
+                    description="Using the official Valve API, retrieve the current number of players on Dota 2",
+                    brief="Displays the Dota 2 player count")
+    async def dota2_current_player_count(ctx):
+        player_count = steam_api_get_current_player_count(os.getenv("steam_api_version", 1), 570)['response']['player_count']
+        await ctx.send("There is currently {:,} players in Dota 2".format(player_count) + ctx.message.author.mention)
 
     return client

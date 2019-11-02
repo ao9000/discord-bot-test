@@ -6,6 +6,7 @@ import os
 
 # Base url
 discord_base_url = "https://discordapp.com/api"
+steam_base_url = "https://api.steampowered.com"
 opendota_base_url = "https://api.opendota.com/api"
 
 
@@ -16,6 +17,19 @@ def discord_api_get_user_profile(version, discord_id):
 
     header = {'Authorization': os.getenv('discord_token_user', None)}
     request = requests.get(url=url, headers=header)
+
+    return request
+
+# Steam API
+@APIHandler
+def steam_api_get_current_player_count(version, app_id):
+    url = url_join(steam_base_url, "ISteamUserStats/GetNumberOfCurrentPlayers/v{}".format(version))
+
+    req = requests.models.PreparedRequest()
+    params = {'key': os.getenv("steam_api_key", None), 'appid': app_id}
+    req.prepare_url(url=url, params=params)
+
+    request = requests.get(url=req.url)
 
     return request
 
