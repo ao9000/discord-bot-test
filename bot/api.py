@@ -1,5 +1,5 @@
 from bot.helper_functions import url_join
-from bot.exceptions import APIHandler
+from bot.handler import GeneralAPIHandler, OpenDotaAPIHandler
 
 import requests
 import os
@@ -11,7 +11,7 @@ opendota_base_url = "https://api.opendota.com/api"
 
 
 # Discord API
-@APIHandler
+@GeneralAPIHandler
 def discord_api_get_user_profile(version, discord_id):
     url = url_join(discord_base_url, "v{}".format(version), "users/{}/profile".format(discord_id))
 
@@ -21,7 +21,7 @@ def discord_api_get_user_profile(version, discord_id):
     return request
 
 # Steam API
-@APIHandler
+@GeneralAPIHandler
 def steam_api_get_current_player_count(version, app_id):
     url = url_join(steam_base_url, "ISteamUserStats/GetNumberOfCurrentPlayers/v{}".format(version))
 
@@ -35,7 +35,7 @@ def steam_api_get_current_player_count(version, app_id):
 
 
 # OpenDota API
-@APIHandler
+@OpenDotaAPIHandler
 def opendota_api_get_player_profile(steam_id_32):
     url = url_join(opendota_base_url, "players/{}".format(steam_id_32))
 
