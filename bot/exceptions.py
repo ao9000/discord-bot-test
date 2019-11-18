@@ -4,3 +4,7 @@ class APIError(Exception):
 
 class APIMonthlyLimitReachedError(Exception):
     pass
+
+
+class CharacterLimitExceededError(Exception):
+    pass

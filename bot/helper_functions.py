@@ -5,11 +5,13 @@ import discord
 
 
 # Discord
-def discord_create_embed_table(title, column_header, column_value, description=None, footer=None):
+def discord_create_embed_table(column_header, column_value, title=None, description=None, footer=None, author=None):
     embed = discord.Embed(title=title, description=description, color=0x00ff00)
 
     if footer:
         embed.set_footer(text=footer)
+    if author:
+        embed.set_author(name=author)
 
     for header, value in zip(column_header, column_value):
         embed.add_field(name=header, value=value, inline=True)
