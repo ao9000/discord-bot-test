@@ -46,3 +46,16 @@ def opendota_api_get_player_profile(steam_id_32):
     request = requests.get(url=req.url)
 
     return request
+
+
+@OpenDotaAPIHandler
+def opendota_api_get_mmr_distribution():
+    url = url_join(opendota_base_url, "distributions")
+
+    req = requests.models.PreparedRequest()
+    params = {'api_key': os.getenv("opendota_api_key", None)}
+    req.prepare_url(url=url, params=params)
+
+    request = requests.get(url=req.url)
+
+    return request
