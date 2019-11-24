@@ -59,6 +59,7 @@ def PaginationHandlerMeta(arg):
                 if isinstance(arg, discord.ext.commands.context.Context):
                     ctx = arg
                     break
+
             # Text tokenization
             if len(response) > character_limit:
                 response_tokenized = nltk.word_tokenize(response)
@@ -87,7 +88,7 @@ def PaginationHandlerMeta(arg):
         return PaginationHandler
 
 
-def EmbedPaginationHandlerMeta(arg):
+def EmbedPaginationHandlerMeta(table=False):
     def EmbedPaginationHandler(func):
         async def func_wrapper(*args, **kwargs):
             # Await coroutine response
@@ -100,18 +101,31 @@ def EmbedPaginationHandlerMeta(arg):
 
             # Embed character limit checks
             # For reference - https://discordapp.com/developers/docs/resources/channel#embed-limits
-            if len(response['title']) > 256:
-                raise CharacterLimitExceededError("Embed title character limit exceeded")
-            elif len(response['description']) > 2048:
-                raise CharacterLimitExceededError("Embed description character limit exceeded")
-            elif len(response['column_value']) > 25:
-                raise CharacterLimitExceededError("Embed field object limit exceeded")
-            elif any(len(header) > 256 for header in response['column_header']):
+
+            # Optional embed arguments
+            if 'title' in response:
+                if len(response['title']) > 256:
+                    raise CharacterLimitExceededError("Embed title character limit exceeded")
+
+            if 'description' in response:
+                if len(response['description']) > 2048:
+                    raise CharacterLimitExceededError("Embed description character limit exceeded")
+
+            if 'column_value' in response:
+                if len(response['column_value']) > 25:
+                    raise CharacterLimitExceededError("Embed field object limit exceeded")
+
+            if 'footer' in response:
+                if len(response['footer']) > 2048:
+                    raise CharacterLimitExceededError("Embed footer character limit exceeded")
+
+            if 'author' in response:
+                if len(response['author']) > 256:
+                    raise CharacterLimitExceededError("Embed author name character exceeded")
+
+            # Compulsory embed arguments
+            if any(len(header) > 256 for header in response['column_header']):
                 raise CharacterLimitExceededError("Embed column header character limit exceeded")
-            elif len(response['footer']) > 2048:
-                raise CharacterLimitExceededError("Embed footer character limit exceeded")
-            elif len(response['author']) > 256:
-                raise CharacterLimitExceededError("Embed author name character exceeded")
             elif any(len(value) > 1024 for value in response['column_value']):
                 if table:
                     # Text tokenization (New line separator)
@@ -129,12 +143,12 @@ def EmbedPaginationHandlerMeta(arg):
                         if any(len(value) > 1024 for value in temp):
                             # Removing last addition
                             temp = ["\n".join(word) for word in [col.split("\n")[:-1] for col in temp]]
-                            embed = discord_create_embed_table(title=response['title'],
+                            embed = discord_create_embed_table(title=response.get("title", None),
                                                                column_header=response['column_header'],
                                                                column_value=[value for value in temp],
-                                                               description=response['description'],
-                                                               footer=response['footer'],
-                                                               author=response['author']
+                                                               description=response.get("description", None),
+                                                               footer=response.get("footer", None),
+                                                               author=response.get("author", None)
                                                                )
                             await ctx.send(embed=embed)
                             # Retain overlapping row
@@ -157,32 +171,24 @@ def EmbedPaginationHandlerMeta(arg):
                         response['column_value'][index] = temp
 
                     for index in range(0, max(len(value) for value in response['column_value']) - 1):
-                        embed = discord_create_embed_table(title=response['title'],
+                        embed = discord_create_embed_table(title=response.get("title", None),
                                                            column_header=response['column_header'],
                                                            column_value=[value[index] for value in response['column_value']],
-                                                           description=response['description'],
-                                                           footer=response['footer'],
-                                                           author=response['author']
+                                                           description=response.get("description", None),
+                                                           footer=response.get("footer", None),
+                                                           author=response.get("author", None)
                                                            )
                         await ctx.send(embed=embed)
 
             else:
-                embed = discord_create_embed_table(title=response['title'],
+                embed = discord_create_embed_table(title=response.get("title", None),
                                                    column_header=response['column_header'],
                                                    column_value=response['column_value'],
-                                                   description=response['description'],
-                                                   footer=response['footer'],
-                                                   author=response['author']
+                                                   description=response.get("description", None),
+                                                   footer=response.get("footer", None),
+                                                   author=response.get("author", None)
                                                    )
                 await ctx.send(embed=embed)
 
         return func_wrapper
-
-    if callable(arg):
-        # No argument provided
-        table = False
-        return EmbedPaginationHandler(arg)
-    else:
-        # Argument provided
-        table = arg
-        return EmbedPaginationHandler
+    return EmbedPaginationHandler
