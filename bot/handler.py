@@ -3,6 +3,7 @@ import time
 import copy
 import discord
 import nltk
+import functools
 
 from bot.exceptions import APIError, APIMonthlyLimitReachedError, CharacterLimitExceededError
 from bot.helper_functions import discord_create_embed_table
@@ -14,6 +15,7 @@ nltk.download('punkt')
 # Decorators
 # API handlers
 def GeneralAPIHandler(func):
+    @functools.wraps(func)
     def func_wrapper(*args, **kwargs):
         request = func(*args, **kwargs)
         if request.status_code == 200:
@@ -30,6 +32,7 @@ def GeneralAPIHandler(func):
 
 
 def OpenDotaAPIHandler(func):
+    @functools.wraps(func)
     def func_wrapper(*args, **kwargs):
         request = func(*args, **kwargs)
         if request.status_code == 200:
@@ -51,6 +54,7 @@ def OpenDotaAPIHandler(func):
 # Pagination handlers
 def PaginationHandlerMeta(arg):
     def PaginationHandler(func):
+        @functools.wraps(func)
         async def func_wrapper(*args, **kwargs):
             # Await coroutine response
             response = await func(*args, **kwargs)
@@ -90,6 +94,7 @@ def PaginationHandlerMeta(arg):
 
 def EmbedPaginationHandlerMeta(table=False):
     def EmbedPaginationHandler(func):
+        @functools.wraps(func)
         async def func_wrapper(*args, **kwargs):
             # Await coroutine response
             response = await func(*args, **kwargs)
