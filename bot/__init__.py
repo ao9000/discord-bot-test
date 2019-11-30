@@ -25,9 +25,11 @@ def create_bot(bot_prefix, self_bot):
                     description="This command accepts two arguments, start number and end number. Randoms both",
                     brief="Rolls a random number (Default 1-100)",
                     aliases=['roll_die', 'roll_dice'])
+    @PaginationHandlerMeta
     async def roll(ctx, start=1, end=100):
         result = random.randint(int(start), int(end))
-        await ctx.send(str(result) + ctx.message.author.mention)
+
+        return str(result)
 
     @roll.error
     async def roll_error(ctx, error):
@@ -40,21 +42,24 @@ def create_bot(bot_prefix, self_bot):
                     description="This command flips a coin and returns Heads or Tails",
                     brief="Returns Heads or Tails.",
                     aliases=['flip_coin'])
+    @PaginationHandlerMeta
     async def flip(ctx):
         coin = ['Heads', 'Tails']
         result = random.choice(coin)
-        await ctx.send(result + ctx.message.author.mention)
+
+        return result
 
     @client.command(name='random',
                     description="This command accepts an unlimited amount of arguments to random",
                     brief="Randoms choices provided by the user",
                     aliases=['random_choice'])
+    @PaginationHandlerMeta
     async def random_choice(ctx, *args):
         if len(args) == 0:
-            await ctx.send("Please provide arguments for me to random" + ctx.message.author.mention)
+            return "Please provide arguments for me to random"
         else:
             result = random.choice(list(args))
-            await ctx.send(str(result) + ctx.message.author.mention)
+            return str(result)
 
     # Game related commands
     @client.command(name='dota2_server_medal',
@@ -65,8 +70,8 @@ def create_bot(bot_prefix, self_bot):
     async def dota2_server_medal(ctx):
         response_dict = {}
 
-        members = client.get_all_members()
-        # members = ctx.guild.members
+        # members = client.get_all_members()
+        members = ctx.guild.members
         for member in members:
             if not member.bot:
                 user_object = discord_api_get_user_profile(os.getenv("discord_api_version", 6), member.id)
